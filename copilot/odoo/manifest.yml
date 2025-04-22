@@ -1,0 +1,43 @@
+name: odoo
+type: Backend Service
+
+image:
+  build: Dockerfile
+  port: 8069
+
+cpu: 2048
+memory: 4096
+count: 2
+
+variables:
+  ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+  DB_HOST: ${DB_HOST}
+  DB_PORT: ${DB_PORT}
+  DB_USER: ${DB_USER}
+  DB_PASSWORD: ${DB_PASSWORD}
+  DB_NAME: ${DB_NAME}
+  WORKERS: 4
+  MAX_CRON_THREADS: 2
+
+secrets:
+  ADMIN_PASSWORD: /copilot/odoo/ADMIN_PASSWORD
+  DB_PASSWORD: /copilot/odoo/DB_PASSWORD
+
+network:
+  vpc:
+    placement: private
+  connect_to:
+    odoo-db:
+      security_groups: [odoo-db-sg]
+
+storage:
+  volumes:
+    odoo_data:
+      path: /var/lib/odoo
+      read_only: false
+      efs:
+        uid: 1000
+        gid: 1000
+        root_directory: /
+        auth:
+          iam: true 

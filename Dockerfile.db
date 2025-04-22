@@ -1,0 +1,15 @@
+FROM postgres:15
+
+# Install additional tools
+RUN apt-get update && apt-get install -y \
+    postgresql-contrib \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create initialization scripts directory
+RUN mkdir -p /docker-entrypoint-initdb.d
+
+# Copy initialization scripts
+COPY ./init-scripts/*.sql /docker-entrypoint-initdb.d/
+
+# Set proper permissions
+RUN chown -R postgres:postgres /docker-entrypoint-initdb.d 

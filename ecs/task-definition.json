@@ -1,0 +1,67 @@
+{
+  "family": "odoo",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "2048",
+  "memory": "4096",
+  "executionRoleArn": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/ecsTaskRole",
+  "containerDefinitions": [
+    {
+      "name": "odoo",
+      "image": "${ECR_REPOSITORY_URI}:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8069,
+          "hostPort": 8069,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "ADMIN_PASSWORD",
+          "value": "${ADMIN_PASSWORD}"
+        },
+        {
+          "name": "DB_HOST",
+          "value": "${DB_HOST}"
+        },
+        {
+          "name": "DB_PORT",
+          "value": "${DB_PORT}"
+        },
+        {
+          "name": "DB_USER",
+          "value": "${DB_USER}"
+        },
+        {
+          "name": "DB_PASSWORD",
+          "value": "${DB_PASSWORD}"
+        },
+        {
+          "name": "DB_NAME",
+          "value": "${DB_NAME}"
+        },
+        {
+          "name": "WORKERS",
+          "value": "4"
+        },
+        {
+          "name": "MAX_CRON_THREADS",
+          "value": "2"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/odoo",
+          "awslogs-region": "${AWS_REGION}",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+} 

@@ -1,0 +1,35 @@
+name: odoo-db
+type: Backend Service
+
+image:
+  build: 
+    dockerfile: ./Dockerfile.db
+  port: 5432
+
+cpu: 1024
+memory: 2048
+count: 1
+
+variables:
+  POSTGRES_USER: ${DB_USER}
+  POSTGRES_PASSWORD: ${DB_PASSWORD}
+  POSTGRES_DB: ${DB_NAME}
+
+secrets:
+  POSTGRES_PASSWORD: /copilot/odoo-db/POSTGRES_PASSWORD
+
+network:
+  vpc:
+    placement: private
+
+storage:
+  volumes:
+    postgres_data:
+      path: /var/lib/postgresql/data
+      read_only: false
+      efs:
+        uid: 999
+        gid: 999
+        root_directory: /
+        auth:
+          iam: true 
