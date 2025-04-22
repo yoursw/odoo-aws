@@ -1,0 +1,31 @@
+{
+  "serviceName": "odoo",
+  "cluster": "${CLUSTER_NAME}",
+  "taskDefinition": "odoo",
+  "desiredCount": 2,
+  "launchType": "FARGATE",
+  "networkConfiguration": {
+    "awsvpcConfiguration": {
+      "subnets": [
+        "${SUBNET_1}",
+        "${SUBNET_2}"
+      ],
+      "securityGroups": [
+        "${SECURITY_GROUP_ID}"
+      ],
+      "assignPublicIp": "ENABLED"
+    }
+  },
+  "loadBalancers": [
+    {
+      "targetGroupArn": "${TARGET_GROUP_ARN}",
+      "containerName": "odoo",
+      "containerPort": 8069
+    }
+  ],
+  "schedulingStrategy": "REPLICA",
+  "deploymentConfiguration": {
+    "maximumPercent": 200,
+    "minimumHealthyPercent": 50
+  }
+} 

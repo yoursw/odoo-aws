@@ -1,0 +1,53 @@
+name: odoo-db
+type: Backend Service
+
+image:
+  build: 
+    dockerfile: ./Dockerfile.db
+  port: 5432
+
+cpu: 1024
+memory: 2048
+count: 1
+
+environments:
+  prod:
+    variables:
+      POSTGRES_USER: odoo
+      POSTGRES_DB: odoo
+      DB_HOST: odoo-db
+      DB_PORT: 5432
+      DB_USER: odoo
+      DB_NAME: odoo
+      POSTGRES_INITDB_ARGS: "--debug"
+
+secrets:
+  DB_PASSWORD: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/DB_PASSWORD
+  POSTGRES_PASSWORD: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/DB_PASSWORD
+
+network:
+  vpc:
+    placement: private
+
+storage:
+  volumes:
+    postgres_data:
+      path: /var/lib/postgresql/data
+      read_only: false
+      efs: true
+
+healthcheck:
+  command: ["CMD-SHELL", "pg_isready -U odoo"]
+  interval: 30s
+  timeout: 5s
+  retries: 3
+  start_period: 40s
+
+logging:
+  retention: 30
+  config:
+    log-driver: awslogs
+    options:
+      awslogs-group: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/odoo-db
+      awslogs-stream-prefix: odoo-db
+      awslogs-create-group: "true"
