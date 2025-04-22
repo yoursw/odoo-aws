@@ -1,4 +1,5 @@
-FROM odoo:16.0
+# NOTE: This appears to have a critical security issue
+FROM odoo:18
 
 # Install additional dependencies
 USER root
