@@ -10,13 +10,20 @@ cpu: 1024
 memory: 2048
 count: 1
 
-variables:
-  POSTGRES_USER: ${DB_USER}
-  POSTGRES_PASSWORD: ${DB_PASSWORD}
-  POSTGRES_DB: ${DB_NAME}
+environments:
+  prod:
+    variables:
+      POSTGRES_USER: odoo
+      POSTGRES_DB: odoo
+      DB_HOST: odoo-db
+      DB_PORT: 5432
+      DB_USER: odoo
+      DB_NAME: odoo
+      POSTGRES_INITDB_ARGS: "--debug"
 
 secrets:
-  POSTGRES_PASSWORD: /copilot/odoo-db/POSTGRES_PASSWORD
+  DB_PASSWORD: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/DB_PASSWORD
+  POSTGRES_PASSWORD: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/DB_PASSWORD
 
 network:
   vpc:
@@ -27,9 +34,20 @@ storage:
     postgres_data:
       path: /var/lib/postgresql/data
       read_only: false
-      efs:
-        uid: 999
-        gid: 999
-        root_directory: /
-        auth:
-          iam: true 
+      efs: true
+
+healthcheck:
+  command: ["CMD-SHELL", "pg_isready -U odoo"]
+  interval: 30s
+  timeout: 5s
+  retries: 3
+  start_period: 40s
+
+logging:
+  retention: 30
+  config:
+    log-driver: awslogs
+    options:
+      awslogs-group: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/odoo-db
+      awslogs-stream-prefix: odoo-db
+      awslogs-create-group: "true"

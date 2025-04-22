@@ -9,6 +9,29 @@ cpu: 2048
 memory: 4096
 count: 2
 
+environments:
+  production:
+    variables:
+      # Odoo Configuration
+      DB_HOST: odoo-db
+      DB_PORT: 5432
+      DB_USER: odoo
+      DB_NAME: odoo
+      # POSTGRES_USER: odoo
+      # POSTGRES_NAME: odoo
+
+      # Odoo Performance Settings
+      WORKERS: 4
+      MAX_CRON_THREADS: 2
+
+      # Optional Settings
+      ODOO_ADDONS_PATH: /mnt/extra-addons
+      ODOO_DATA_DIR: /var/lib/odoo
+
+secrets:
+  ADMIN_PASSWORD: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/ADMIN_PASSWORD
+  DB_PASSWORD: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/DB_PASSWORD
+
 variables:
   ADMIN_PASSWORD: ${ADMIN_PASSWORD}
   DB_HOST: ${DB_HOST}
@@ -18,10 +41,6 @@ variables:
   DB_NAME: ${DB_NAME}
   WORKERS: 4
   MAX_CRON_THREADS: 2
-
-secrets:
-  ADMIN_PASSWORD: /copilot/odoo/ADMIN_PASSWORD
-  DB_PASSWORD: /copilot/odoo/DB_PASSWORD
 
 network:
   vpc:
