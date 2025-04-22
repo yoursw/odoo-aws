@@ -1,43 +1,88 @@
-## AWS Copilot CLI Sample App
+# Odoo ECS Deployment with AWS Copilot
 
-This is a sample AWS Copilot sample app. You can use AWS Copilot to deploy this simple website to Amazon ECS. 
+This project contains the necessary configurations to deploy Odoo on AWS ECS using AWS Copilot.
 
-## Deploying 
+## Prerequisites
 
-To deploy this app, clone this repo and then run:
+- AWS CLI configured with appropriate permissions
+- AWS Copilot CLI installed
+- Docker installed locally
 
+## Deployment Instructions
+
+1. Initialize the Copilot application:
+```bash
+copilot init --app odoo-app
 ```
-copilot init --app demo \
-  --name api \
-  --type "Load Balanced Web Service" \
-  --dockerfile "./Dockerfile" \
-  --deploy
+
+1. Create the database service:
+```bash
+copilot svc init --name odoo-db --svc-type "Backend Service" --dockerfile ./Dockerfile.db
 ```
 
-Copilot will set up the following resources in your account:
-* A VPC
-* Subnets/Security Groups
-* Application Load Balancer
-* Amazon ECR Repositories
-* ECS Cluster & Service running on AWS Fargate
-
-## Cleaning up
-
-Since this demo sets up resources in your account, let's delete them so you don't get charged: 
-
+1. Create the Odoo service:
+```bash
+copilot svc init --name odoo --svc-type "Backend Service" --dockerfile ./Dockerfile
 ```
+
+1. Set up secrets:
+```bash
+# Set Odoo admin password
+copilot secret init --name ADMIN_PASSWORD --app odoo-app
+
+# Set database password
+copilot secret init --name DB_PASSWORD --app odoo-app
+```
+
+1. Deploy the services:
+```bash
+# Deploy database first
+copilot svc deploy --name odoo-db
+
+# Deploy Odoo
+copilot svc deploy --name odoo
+```
+
+## Environment Management
+
+To create a new environment (e.g., staging):
+```bash
+copilot env init --name staging --app odoo-app --profile default
+```
+
+To deploy to a specific environment:
+```bash
+copilot svc deploy --name odoo --env staging
+```
+
+## Monitoring
+
+Copilot provides built-in monitoring through:
+- CloudWatch Logs
+- CloudWatch Metrics
+- Service logs via `copilot svc logs`
+
+## Scaling
+
+Adjust service scaling:
+```bash
+copilot svc scale --name odoo --count 3
+```
+
+## Cleanup
+
+To delete the entire application:
+```bash
 copilot app delete
 ```
 
-## Learning More
+## Security Considerations
 
-If you want to learn more about AWS Copilot, check out our [documentation](https://aws.github.io/copilot-cli/).
-
-## Security
-
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+- All sensitive credentials are stored in AWS Secrets Manager
+- Network access is restricted through VPC configuration
+- EFS volumes are secured with IAM authentication
+- Regular security updates should be applied to the container images
 
 ## License
 
-This library is licensed under the MIT-0 License. See the LICENSE file.
-
+This library is licensed under the AGPLv3 License. See the LICENSE file.
