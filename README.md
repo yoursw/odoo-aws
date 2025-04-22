@@ -10,9 +10,25 @@ This project contains the necessary configurations to deploy Odoo on AWS ECS usi
 
 ## Deployment Instructions
 
+1. Configure preconditions:
+
+```bash
+export APP_ENV=prod
+```
+
+1. Configure AWS CLI:
+```bash
+aws iam create-user --user-name copilot-admin
+aws iam attach-user-policy --user-name copilot-admin --policy-arn arn:aws:iam::aws:policy/AdministratorAccess
+aws iam create-access-key --user-name copilot-admin
+aws configure
+```
+
 1. Initialize the Copilot application:
 ```bash
 copilot init --app odoo-app
+copilot env init --name prod --app odoo-app --profile default
+copilot env deploy --name ${APP_ENV} --app odoo-app
 ```
 
 1. Create the database service:
@@ -31,7 +47,7 @@ copilot svc init --name odoo --svc-type "Backend Service" --dockerfile ./Dockerf
 copilot secret init --name ADMIN_PASSWORD --app odoo-app
 
 # Set database password
-copilot secret init --name DB_PASSWORD --app odoo-app
+copilot secret init --name DB_PASSWORD
 ```
 
 1. Deploy the services:
